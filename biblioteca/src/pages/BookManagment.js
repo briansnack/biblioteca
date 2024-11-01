@@ -7,14 +7,20 @@ const BookManagement = () => {
 
   // Carregar livros do localStorage
   useEffect(() => {
-    setBooks(loadFromStorage('books'));
+    const loadedBooks = loadFromStorage('books') || []; 
+    setBooks(loadedBooks);
   }, []);
 
   const addBook = () => {
+    if (!newBook.title || !newBook.author || !newBook.genre) {
+      alert("Por favor, preencha todos os campos.");
+      return; 
+    }
+
     const updatedBooks = [...books, newBook];
     setBooks(updatedBooks);
     saveToStorage('books', updatedBooks);
-    setNewBook({ title: '', author: '', genre: '' });
+    setNewBook({ title: '', author: '', genre: '' }); 
   };
 
   return (
@@ -41,7 +47,7 @@ const BookManagement = () => {
       <button onClick={addBook}>Adicionar Livro</button>
       <ul>
         {books.map((book, index) => (
-          <li key={index}>{book.title} - {book.author}</li>
+          <li key={index}>{book.title} - {book.author} ({book.genre})</li>
         ))}
       </ul>
     </div>

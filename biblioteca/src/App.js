@@ -1,21 +1,25 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './components/Navbar'
+import HomePage from './pages/HomePage';
 import BookManagement from './pages/BookManagment';
-import UserManagement from './pages/UserManagment';
 import LoanManagement from './pages/LoanManagment';
+import UserManagement from './pages/UserManagment';
 
-function App() {
+const App = () => {
   return (
     <Router>
       <Navbar />
-      <Routes>
-        <Route path="/books" element={<BookManagement />} />
-        <Route path="/users" element={<UserManagement />} />
-        <Route path="/loans" element={<LoanManagement />} />
-      </Routes>
+      <div className="container mt-3">
+        <Routes>
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/books" element={<BookManagement />} />
+          <Route path="/loans" element={<LoanManagement />} />
+          <Route path="/users" element={<UserManagement />} />
+        </Routes>
+      </div>
     </Router>
   );
-}
+};
 
 export default App;
