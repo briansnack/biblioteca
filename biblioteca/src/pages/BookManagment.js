@@ -1,31 +1,60 @@
-// src/pages/BookManagement.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function BookManagement() {
-  const [bookTitle, setBookTitle] = useState('');
+  const [books, setBooks] = useState([]);
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
 
-  const handleAddBook = () => {
-    // Lógica para adicionar livro
-    console.log('Livro adicionado:', bookTitle);
+  // Carregar lista de livros ao montar o componente
+  useEffect(() => {
+    fetch('/api/books')
+      .then((response) => response.json())
+      .then((data) => setBooks(data));
+  }, []);
+
+  // Função para adicionar um novo livro
+  const handleAddBook = (e) => {
+    e.preventDefault();
+    fetch('/api/books', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, author }),
+    })
+      .then((response) => response.json())
+      .then((newBook) => {
+        setBooks([...books, newBook]);
+        setTitle('');
+        setAuthor('');
+      });
   };
 
   return (
-    <div>
-      <h2>Gestão de Livros</h2>
-      <form>
-        <div className="mb-3">
-          <label className="form-label">Título do Livro</label>
-          <input
-            type="text"
-            className="form-control"
-            value={bookTitle}
-            onChange={(e) => setBookTitle(e.target.value)}
-          />
-        </div>
-        <button type="button" className="btn btn-primary" onClick={handleAddBook}>
-          Adicionar Livro
-        </button>
+    <div className="container">
+      <h2>Gerenciamento de Livros</h2>
+      <form onSubmit={handleAddBook}>
+        <input
+          type="text"
+          placeholder="Título do livro"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Autor do livro"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          required
+        />
+        <button type="submit">Adicionar Livro</button>
       </form>
+      <ul>
+        {books.map((book) => (
+          <li key={book.id}>
+            {book.title} - {book.author} ({book.available ? 'Disponível' : 'Emprestado'})
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

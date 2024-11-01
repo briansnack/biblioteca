@@ -1,23 +1,19 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import BookManagement from './pages/BookManagment';
-import LoanManagement from './pages/LoanManagment';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import BookManagement from './pages/BookManagement';
+import UserManagement from './pages/UserManagement';
+import LoanManagement from './pages/LoanManagement';
 
 function App() {
   return (
     <Router>
-      <div>
-        <Navbar />
-        <div className="container mt-4">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/books" element={<BookManagement />} />
-            <Route path="/loans" element={<LoanManagement />} />
-          </Routes>
-        </div>
-      </div>
+      <Navbar />
+      <Routes>
+        <Route path="/books" element={<BookManagement />} />
+        <Route path="/users" element={<UserManagement />} />
+        <Route path="/loans" element={<LoanManagement />} />
+      </Routes>
     </Router>
   );
 }
