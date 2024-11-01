@@ -1,62 +1,44 @@
 import React, { useState, useEffect } from 'react';
+import { saveToStorage, loadFromStorage } from '../utils/storage';
 
-function UserManagement() {
+const UserManagement = () => {
   const [users, setUsers] = useState([]);
-  const [name, setName] = useState('');
-  const [role, setRole] = useState('');
+  const [newUser, setNewUser] = useState({ name: '', role: '' });
 
-  // Carregar lista de usuários ao montar o componente
   useEffect(() => {
-    fetch('/api/users')
-      .then((response) => response.json())
-      .then((data) => setUsers(data));
+    setUsers(loadFromStorage('users'));
   }, []);
 
-  // Função para adicionar um novo usuário
-  const handleAddUser = (e) => {
-    e.preventDefault();
-    fetch('/api/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, role }),
-    })
-      .then((response) => response.json())
-      .then((newUser) => {
-        setUsers([...users, newUser]);
-        setName('');
-        setRole('');
-      });
+  const addUser = () => {
+    const updatedUsers = [...users, newUser];
+    setUsers(updatedUsers);
+    saveToStorage('users', updatedUsers);
+    setNewUser({ name: '', role: '' });
   };
 
   return (
-    <div className="container">
+    <div>
       <h2>Gerenciamento de Usuários</h2>
-      <form onSubmit={handleAddUser}>
-        <input
-          type="text"
-          placeholder="Nome do usuário"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Função (aluno, professor, funcionário)"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          required
-        />
-        <button type="submit">Adicionar Usuário</button>
-      </form>
+      <input
+        type="text"
+        placeholder="Nome"
+        value={newUser.name}
+        onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+      />
+      <input
+        type="text"
+        placeholder="Função (ex: Aluno, Professor)"
+        value={newUser.role}
+        onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+      />
+      <button onClick={addUser}>Adicionar Usuário</button>
       <ul>
-        {users.map((user) => (
-          <li key={user.id}>
-            {user.name} - {user.role}
-          </li>
+        {users.map((user, index) => (
+          <li key={index}>{user.name} - {user.role}</li>
         ))}
       </ul>
     </div>
   );
-}
+};
 
 export default UserManagement;

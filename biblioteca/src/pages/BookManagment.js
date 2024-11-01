@@ -1,62 +1,51 @@
 import React, { useState, useEffect } from 'react';
+import { saveToStorage, loadFromStorage } from '../utils/storage';
 
-function BookManagement() {
+const BookManagement = () => {
   const [books, setBooks] = useState([]);
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
+  const [newBook, setNewBook] = useState({ title: '', author: '', genre: '' });
 
-  // Carregar lista de livros ao montar o componente
+  // Carregar livros do localStorage
   useEffect(() => {
-    fetch('/api/books')
-      .then((response) => response.json())
-      .then((data) => setBooks(data));
+    setBooks(loadFromStorage('books'));
   }, []);
 
-  // Função para adicionar um novo livro
-  const handleAddBook = (e) => {
-    e.preventDefault();
-    fetch('/api/books', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, author }),
-    })
-      .then((response) => response.json())
-      .then((newBook) => {
-        setBooks([...books, newBook]);
-        setTitle('');
-        setAuthor('');
-      });
+  const addBook = () => {
+    const updatedBooks = [...books, newBook];
+    setBooks(updatedBooks);
+    saveToStorage('books', updatedBooks);
+    setNewBook({ title: '', author: '', genre: '' });
   };
 
   return (
-    <div className="container">
+    <div>
       <h2>Gerenciamento de Livros</h2>
-      <form onSubmit={handleAddBook}>
-        <input
-          type="text"
-          placeholder="Título do livro"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Autor do livro"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          required
-        />
-        <button type="submit">Adicionar Livro</button>
-      </form>
+      <input
+        type="text"
+        placeholder="Título"
+        value={newBook.title}
+        onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
+      />
+      <input
+        type="text"
+        placeholder="Autor"
+        value={newBook.author}
+        onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
+      />
+      <input
+        type="text"
+        placeholder="Gênero"
+        value={newBook.genre}
+        onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })}
+      />
+      <button onClick={addBook}>Adicionar Livro</button>
       <ul>
-        {books.map((book) => (
-          <li key={book.id}>
-            {book.title} - {book.author} ({book.available ? 'Disponível' : 'Emprestado'})
-          </li>
+        {books.map((book, index) => (
+          <li key={index}>{book.title} - {book.author}</li>
         ))}
       </ul>
     </div>
   );
-}
+};
 
 export default BookManagement;

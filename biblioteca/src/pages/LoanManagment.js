@@ -1,59 +1,49 @@
 import React, { useState, useEffect } from 'react';
+import { saveToStorage, loadFromStorage } from '../utils/storage';
 
-function LoanManagement() {
+const LoanManagement = () => {
+  const [loans, setLoans] = useState([]);
+  const [selectedUser, setSelectedUser] = useState('');
+  const [selectedBook, setSelectedBook] = useState('');
   const [books, setBooks] = useState([]);
   const [users, setUsers] = useState([]);
-  const [selectedBook, setSelectedBook] = useState('');
-  const [selectedUser, setSelectedUser] = useState('');
 
   useEffect(() => {
-    fetch('/api/books')
-      .then((response) => response.json())
-      .then((data) => setBooks(data));
-
-    fetch('/api/users')
-      .then((response) => response.json())
-      .then((data) => setUsers(data));
+    setBooks(loadFromStorage('books'));
+    setUsers(loadFromStorage('users'));
+    setLoans(loadFromStorage('loans'));
   }, []);
 
-  const handleLoan = (e) => {
-    e.preventDefault();
-    fetch('/api/loans', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookId: selectedBook, userId: selectedUser }),
-    }).then(() => {
-      // Atualize a lista de livros para refletir o novo status de disponibilidade
-      setBooks(books.map((book) => (book.id === selectedBook ? { ...book, available: false } : book)));
-      setSelectedBook('');
-      setSelectedUser('');
-    });
+  const addLoan = () => {
+    const newLoan = { user: selectedUser, book: selectedBook, date: new Date().toLocaleDateString() };
+    const updatedLoans = [...loans, newLoan];
+    setLoans(updatedLoans);
+    saveToStorage('loans', updatedLoans);
   };
 
   return (
-    <div className="container">
+    <div>
       <h2>Gerenciamento de Empréstimos</h2>
-      <form onSubmit={handleLoan}>
-        <select value={selectedBook} onChange={(e) => setSelectedBook(e.target.value)} required>
-          <option value="">Selecione um livro</option>
-          {books.filter((book) => book.available).map((book) => (
-            <option key={book.id} value={book.id}>
-              {book.title}
-            </option>
-          ))}
-        </select>
-        <select value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)} required>
-          <option value="">Selecione um usuário</option>
-          {users.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.name}
-            </option>
-          ))}
-        </select>
-        <button type="submit">Realizar Empréstimo</button>
-      </form>
+      <select onChange={(e) => setSelectedUser(e.target.value)} value={selectedUser}>
+        <option value="">Selecione um usuário</option>
+        {users.map((user, index) => (
+          <option key={index} value={user.name}>{user.name}</option>
+        ))}
+      </select>
+      <select onChange={(e) => setSelectedBook(e.target.value)} value={selectedBook}>
+        <option value="">Selecione um livro</option>
+        {books.map((book, index) => (
+          <option key={index} value={book.title}>{book.title}</option>
+        ))}
+      </select>
+      <button onClick={addLoan}>Realizar Empréstimo</button>
+      <ul>
+        {loans.map((loan, index) => (
+          <li key={index}>{loan.user} emprestou "{loan.book}" em {loan.date}</li>
+        ))}
+      </ul>
     </div>
   );
-}
+};
 
 export default LoanManagement;
