@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import BookManagement from './pages/BookManagement';
-import LoanManagement from './pages/LoanManagement';
+import BookManagement from './pages/BookManagment';
+import LoanManagement from './pages/LoanManagment';
 import Navbar from './components/Navbar';
 
 function App() {
