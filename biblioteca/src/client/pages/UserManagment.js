@@ -1,19 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { saveToStorage, loadFromStorage } from '../utils/storage';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ name: '', role: '' });
+  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'aluno' });
 
+  // Carregar usuários do backend
   useEffect(() => {
-    setUsers(loadFromStorage('users'));
+    fetch('http://localhost:3000/api/users')
+      .then(response => response.json())
+      .then(data => setUsers(data))
+      .catch(error => console.error('Erro ao buscar usuários:', error));
   }, []);
 
-  const addUser = () => {
-    const updatedUsers = [...users, newUser];
-    setUsers(updatedUsers);
-    saveToStorage('users', updatedUsers);
-    setNewUser({ name: '', role: '' });
+  const addUser = async () => {
+    if (!newUser.name || !newUser.email || !newUser.role) {
+      alert("Por favor, preencha todos os campos.");
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUser),
+      });
+
+      if (response.ok) {
+        const addedUser = await response.json();
+        setUsers([...users, addedUser]);
+        setNewUser({ name: '', email: '', role: 'aluno' });
+      } else {
+        const errorData = await response.json();
+        alert(`Erro: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Erro ao adicionar usuário:', error);
+    }
   };
 
   return (
@@ -26,15 +48,23 @@ const UserManagement = () => {
         onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
       />
       <input
-        type="text"
-        placeholder="Função (ex: Aluno, Professor)"
+        type="email"
+        placeholder="E-mail"
+        value={newUser.email}
+        onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+      />
+      <select
         value={newUser.role}
         onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-      />
+      >
+        <option value="aluno">Aluno</option>
+        <option value="professor">Professor</option>
+        <option value="bibliotecário">Bibliotecário</option>
+      </select>
       <button onClick={addUser}>Adicionar Usuário</button>
       <ul>
-        {users.map((user, index) => (
-          <li key={index}>{user.name} - {user.role}</li>
+        {users.map((user) => (
+          <li key={user.id}>{user.name} - {user.role}</li>
         ))}
       </ul>
     </div>
