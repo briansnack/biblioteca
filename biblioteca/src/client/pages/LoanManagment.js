@@ -9,12 +9,17 @@ const LoanManagement = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    setBooks(loadFromStorage('books'));
-    setUsers(loadFromStorage('users'));
-    setLoans(loadFromStorage('loans'));
+    setBooks(loadFromStorage('books') || []);
+    setUsers(loadFromStorage('users') || []);
+    setLoans(loadFromStorage('loans') || []);
   }, []);
 
   const addLoan = () => {
+    if (!selectedUser || !selectedBook) {
+      alert("Selecione um usuário e um livro.");
+      return;
+    }
+
     const newLoan = { user: selectedUser, book: selectedBook, date: new Date().toLocaleDateString() };
     const updatedLoans = [...loans, newLoan];
     setLoans(updatedLoans);

@@ -5,10 +5,9 @@ const BookManagement = () => {
   const [books, setBooks] = useState([]);
   const [newBook, setNewBook] = useState({ title: '', author: '', genre: '' });
 
-  // Carregar livros do localStorage
   useEffect(() => {
-    const loadedBooks = loadFromStorage('books') || []; 
-    setBooks(loadedBooks);
+    const loadedBooks = loadFromStorage('books');
+    if (Array.isArray(loadedBooks)) setBooks(loadedBooks);
   }, []);
 
   const addBook = () => {
@@ -17,33 +16,23 @@ const BookManagement = () => {
       return; 
     }
 
+    if (books.some(book => book.title === newBook.title && book.author === newBook.author)) {
+      alert("Este livro já foi adicionado.");
+      return;
+    }
+
     const updatedBooks = [...books, newBook];
     setBooks(updatedBooks);
     saveToStorage('books', updatedBooks);
-    setNewBook({ title: '', author: '', genre: '' }); 
+    setNewBook({ title: '', author: '', genre: '' });
   };
 
   return (
     <div>
       <h2>Gerenciamento de Livros</h2>
-      <input
-        type="text"
-        placeholder="Título"
-        value={newBook.title}
-        onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
-      />
-      <input
-        type="text"
-        placeholder="Autor"
-        value={newBook.author}
-        onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
-      />
-      <input
-        type="text"
-        placeholder="Gênero"
-        value={newBook.genre}
-        onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })}
-      />
+      <input type="text" placeholder="Título" value={newBook.title} onChange={(e) => setNewBook({ ...newBook, title: e.target.value })} />
+      <input type="text" placeholder="Autor" value={newBook.author} onChange={(e) => setNewBook({ ...newBook, author: e.target.value })} />
+      <input type="text" placeholder="Gênero" value={newBook.genre} onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })} />
       <button onClick={addBook}>Adicionar Livro</button>
       <ul>
         {books.map((book, index) => (
